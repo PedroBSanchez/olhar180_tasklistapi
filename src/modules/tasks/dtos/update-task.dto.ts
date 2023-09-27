@@ -1,7 +1,7 @@
 import { IsDate, IsString, IsISO8601 } from 'class-validator';
 import { TaskStatusEnum } from '../enum/task-status.enum';
 
-export class CreateTaskDto {
+export class UpdateTaskDto {
   @IsString()
   title: string;
 
