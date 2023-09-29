@@ -70,7 +70,7 @@ export class TasksService {
       .execute();
   }
 
-  private async findTask(taskId: number): Promise<any> {
+  public async findTask(taskId: number): Promise<any> {
     const query = this.tasksRepository.createQueryBuilder('tasks');
 
     const taskInDb = await query

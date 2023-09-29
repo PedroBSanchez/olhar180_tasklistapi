@@ -27,6 +27,23 @@ export class TasksController {
     return await this.tasksService.findAllTasks();
   }
 
+  @Get(':id')
+  async findTask(@Param() params: any) {
+    const taskId: number = params.id;
+
+    if (!taskId) {
+      throw new BadRequestException('task [id] is required in request params');
+    }
+
+    const task = await this.tasksService.findTask(taskId);
+
+    if (!task) {
+      throw new BadRequestException('Task not found');
+    }
+
+    return task;
+  }
+
   @UsePipes(ValidationPipe)
   @Post()
   async create(@Body() task: CreateTaskDto) {
@@ -43,7 +60,7 @@ export class TasksController {
       throw new BadRequestException('task [id] is required in request params');
     }
 
-    const updateTask = await await this.tasksService.update(taskId, task);
+    const updateTask = await this.tasksService.update(taskId, task);
 
     if (!updateTask) {
       throw new BadRequestException('Task not found');
