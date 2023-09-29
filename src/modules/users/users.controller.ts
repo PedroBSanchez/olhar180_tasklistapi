@@ -8,6 +8,7 @@ import {
   ValidationPipe,
   UsePipes,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -21,7 +22,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  async findAll() {
+  async findAll(@Req() req: any) {
     return await this.usersService.findAll();
   }
 
