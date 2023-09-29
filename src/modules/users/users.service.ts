@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { UsersEntity } from './users.entity';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -34,6 +34,12 @@ export class UsersService {
   }
 
   async store(data: CreateUserDto) {
+    const userInDb = await this.findByUsername(data.username);
+
+    if (userInDb) {
+      throw new BadRequestException('Usuário já cadastrado');
+    }
+
     const user = this.usersRepository.create(data);
     return await this.usersRepository.save(user);
   }

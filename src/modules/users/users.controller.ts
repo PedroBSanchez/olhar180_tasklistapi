@@ -17,15 +17,22 @@ import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('users')
 @Controller('users')
-@UseGuards(AuthGuard('jwt'))
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @UseGuards(AuthGuard('jwt'))
+  @Get('/verifytoken')
+  async verifyToken() {
+    return { success: true };
+  }
+
+  @UseGuards(AuthGuard('jwt'))
   @Get()
   async findAll(@Req() req: any) {
     return await this.usersService.findAll();
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Get(':id')
   async findOne(@Param() param: any) {
     const id: number = param.id;

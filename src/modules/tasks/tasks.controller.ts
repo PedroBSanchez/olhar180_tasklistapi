@@ -10,21 +10,27 @@ import {
   BadRequestException,
   Delete,
   Patch,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dtos/create-task.dto';
 import { FindAllTasksDto } from './dtos/find-all-tasks.dto';
 import { UpdateTaskDto } from './dtos/update-task.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
+import { use } from 'passport';
 
 @ApiTags('tasks')
+@UseGuards(AuthGuard('jwt'))
 @Controller('/tasks')
 export class TasksController {
   constructor(private tasksService: TasksService) {}
 
   @Get()
-  async findAllTasks() {
-    return await this.tasksService.findAllTasks();
+  async findAllTasks(@Req() req: any) {
+    const userId: number = req.user.id;
+    return await this.tasksService.findAllTasks(userId);
   }
 
   @Get(':id')
@@ -46,8 +52,9 @@ export class TasksController {
 
   @UsePipes(ValidationPipe)
   @Post()
-  async create(@Body() task: CreateTaskDto) {
-    const tasks: FindAllTasksDto = await this.tasksService.create(task);
+  async create(@Req() req: any, @Body() task: CreateTaskDto) {
+    const userId = req.user.id;
+    const tasks: FindAllTasksDto = await this.tasksService.create(task, userId);
     return tasks;
   }
 

@@ -5,23 +5,32 @@ import { Repository } from 'typeorm';
 import { CreateTaskDto } from './dtos/create-task.dto';
 import { FindAllTasksDto } from './dtos/find-all-tasks.dto';
 import { UpdateTaskDto } from './dtos/update-task.dto';
+import { UsersEntity } from '../users/users.entity';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class TasksService {
   constructor(
     @InjectRepository(TasksEntity)
-    private tasksRepository: Repository<TasksEntity>,
+    private readonly tasksRepository: Repository<TasksEntity>,
+    private readonly userService: UsersService,
   ) {}
 
-  async create(newTask: CreateTaskDto): Promise<TasksEntity> {
-    return await this.tasksRepository.save(
-      this.tasksRepository.create(newTask),
-    );
+  async create(newTask: CreateTaskDto, userId: number): Promise<TasksEntity> {
+    const createTask = await this.tasksRepository.create(newTask);
+
+    const user = await this.userService.findById(userId);
+    createTask.user = user;
+
+    return await this.tasksRepository.save(createTask);
   }
 
-  async findAllTasks(): Promise<Array<TasksEntity>> {
+  async findAllTasks(userId: number): Promise<Array<TasksEntity>> {
     const query = this.tasksRepository.createQueryBuilder('tasks');
-    return await query.orderBy('tasks.id', 'DESC').getMany();
+    return await query
+      .where('tasks.userId = :id', { id: userId })
+      .orderBy('tasks.id', 'DESC')
+      .getMany();
   }
 
   async update(taskId: number, task: UpdateTaskDto): Promise<any> {
@@ -29,6 +38,7 @@ export class TasksService {
     if (!taskInDb) {
       return false;
     }
+
     const query = this.tasksRepository.createQueryBuilder('tasks');
 
     return await query
@@ -48,6 +58,7 @@ export class TasksService {
     if (!taskInDb) {
       return false;
     }
+
     const query = this.tasksRepository.createQueryBuilder('tasks');
     return await query
       .delete()
@@ -71,16 +82,10 @@ export class TasksService {
   }
 
   public async findTask(taskId: number): Promise<any> {
-    const query = this.tasksRepository.createQueryBuilder('tasks');
-
-    const taskInDb = await query
-      .where('tasks.id = :id', { id: taskId })
-      .getOne();
-
-    if (!taskInDb) {
-      return false;
-    }
-
-    return taskInDb;
+    return await this.tasksRepository.findOne({
+      where: {
+        id: taskId,
+      },
+    });
   }
 }
