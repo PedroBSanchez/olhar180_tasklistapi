@@ -12,6 +12,7 @@ import {
   Patch,
   UseGuards,
   Req,
+  Query,
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dtos/create-task.dto';
@@ -28,9 +29,11 @@ export class TasksController {
   constructor(private tasksService: TasksService) {}
 
   @Get()
-  async findAllTasks(@Req() req: any) {
+  async findAllTasks(@Req() req: any, @Query() query: any) {
+    const title = query.title || '';
+    const priority = query.priority || '';
     const userId: number = req.user.id;
-    return await this.tasksService.findAllTasks(userId);
+    return await this.tasksService.findAllTasks(userId, title, priority);
   }
 
   @Get(':id')
