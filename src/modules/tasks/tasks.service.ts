@@ -54,8 +54,8 @@ export class TasksService {
     }
 
     return await query
-      .where('tasks.userId = :id', { id: userId })
-      .where('LOWER(tasks.title) LIKE :title', {
+      .where('tasks.user.id = :id', { id: userId })
+      .andWhere('LOWER(tasks.title) LIKE :title', {
         title: `%${title.toLocaleLowerCase()}%`,
       })
       .andWhere(priorityEnum !== '' ? 'tasks.priority = :enumValue' : '1 = 1', {
